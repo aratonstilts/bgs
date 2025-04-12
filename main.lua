@@ -51,7 +51,7 @@ local function findClosePickups()
 	return nearbyPickups
 end
 
-clip = true
+local clip = true
 local function noClip()
 	clip = false
 	while clip == false and task.wait() do
@@ -274,8 +274,8 @@ local function createGUI()
 		if autoPickingUp == false then
 			autoPickingUp = true
 			buttn4.BackgroundColor3 = Color3.fromRGB(50,100,100)
+			task.spawn(noClip)
 			while autoPickingUp do
-				task.spawn(noClip)
 				autoPickupPickupables()
 				task.wait()
 			end
