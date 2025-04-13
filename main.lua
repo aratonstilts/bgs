@@ -301,9 +301,14 @@ local function createGUI()
 			buttn4.BackgroundColor3 = Color3.fromRGB(50,100,100)
 			task.spawn(noClip)
 			makeFloat(true)
+			local savedYPosition = HR.CFrame.Position.Y
 			while autoPickingUp do
 				autoPickupPickupables()
 				task.wait()
+				
+				if HR.CFrame.Position.Y ~= savedYPosition then
+					HR.CFrame = HR.CFrame + Vector3.new(0, savedYPosition - HR.CFrame.Position.Y, 0)
+				end
 			end
 		
 		else
