@@ -10,12 +10,16 @@ until mouse
 
 local Players = game:GetService("Players")
 local player = game:GetService("Players").LocalPlayer
+local BV = Instance.new("BodyVelocity")
 
 local function onCharacterAdded(char)
 	print("character added!")
 	humanoid = char:WaitForChild("Humanoid")
 	character = char
 	HR = char:WaitForChild("HumanoidRootPart")
+	BV.MaxForce = Vector3.new(0,0,0)
+	BV.Velocity = Vector3.new(0,0,0)
+	BV.Parent = HR
 end
 
 local character = player.Character
@@ -68,9 +72,29 @@ local function yesClip()
 end
 
 
-local function moveTo(targetPoint)
-	humanoid:MoveTo(targetPoint)
-	humanoid.MoveToFinished:Wait()
+local function makeFloat(value)
+	if value == false then
+		BV.MaxForce = Vector3.new(0,0,0)
+		return
+	end
+	
+	BV.MaxForce = Vector3.new(0,math.huge,0)
+end
+
+
+local MoveId = 0
+local function MoveToWithTimeOut(vector3,timeout)
+	MoveId = (MoveId + 1)%1000
+	local fnMoveId = MoveId
+
+	humanoid:MoveTo(vector3)
+
+	coroutine.wrap(function()
+		wait(timeout)
+		if fnMoveId == MoveId then 
+			humanoid:Move(Vector3.new())
+		end
+	end)()
 end
 
 local autoPickingUp = false
@@ -79,7 +103,7 @@ local function autoPickupPickupables()
 	
 	for _,pickup in pairs(pickups) do
 		if pickup.Parent ~= nil then
-			moveTo(pickup.Position)
+			MoveToWithTimeOut(pickup.Position, 2)
 		end
 	end
 end
@@ -150,6 +174,7 @@ local function createGUI()
 		sellingBubble = false
 		autoPickingUp = false
 		clip = true
+		makeFloat(false)
 		CmdGui:Destroy()
 	end)
 	
@@ -180,7 +205,7 @@ local function createGUI()
 	CmdName.BorderSizePixel = 0
 	CmdName.Size = UDim2.new(0, 87, 0, 15)
 	CmdName.Font = Enum.Font.GothamBlack
-	CmdName.Text = "Islands GUI"
+	CmdName.Text = "BGS Infinity"
 	CmdName.TextColor3 = Color3.fromRGB(255, 255, 255)
 	CmdName.TextScaled = true
 	CmdName.TextSize = 14.000
@@ -275,6 +300,7 @@ local function createGUI()
 			autoPickingUp = true
 			buttn4.BackgroundColor3 = Color3.fromRGB(50,100,100)
 			task.spawn(noClip)
+			makeFloat(true)
 			while autoPickingUp do
 				autoPickupPickupables()
 				task.wait()
@@ -282,6 +308,7 @@ local function createGUI()
 		
 		else
 			yesClip()
+			makeFloat(false)
 			autoPickingUp = false
 			buttn4.BackgroundColor3 = Color3.fromRGB(50,50,50)
 		end
