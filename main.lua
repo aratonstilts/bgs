@@ -111,6 +111,16 @@ local function MoveToWithTimeOut(vector3,timeout)
 	end)()
 end
 
+local function checkHumanoidState()
+	return humanoid:GetState()
+end
+
+local function fixHumanoidState()
+	if checkHumanoidState() == Enum.HumanoidStateType.Freefall then
+		Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+	end
+end
+
 local autoPickingUp = false
 local function autoPickupPickupables()
 	local pickups = findClosePickups()
@@ -283,7 +293,7 @@ local function createGUI()
 	
 	buttn2 = Instance.new("TextButton")
     buttn2.Size = UDim2.new(0,100,0,20)
-    buttn2.BackgroundColor3 = Color3.fromRGB(50,500,50)
+    buttn2.BackgroundColor3 = Color3.fromRGB(50,50,50)
     buttn2.BorderColor3 = Color3.new(1,1,1)
     buttn2.ZIndex = 2
     buttn2.Parent = CmdHandler
@@ -345,6 +355,8 @@ local function createGUI()
 				if HR.CFrame.Position.Y ~= savedYPosition then
 					HR.CFrame = HR.CFrame + Vector3.new(0, savedYPosition - HR.CFrame.Position.Y, 0)
 				end
+				
+				fixHumanoidState()
 			end
 		
 		else
