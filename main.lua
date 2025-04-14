@@ -119,12 +119,44 @@ local function checkHumanoidState()
 	return humanoid:GetState()
 end
 
+local function teleport()
+	local args = {
+		[1] = "Teleport",
+		[2] = "Workspace.Worlds.The Overworld.Islands.Zen.Island.Portal.Spawn"
+	}
+
+	eventEvent:FireServer(unpack(args))
+
+end
+
+
+local function fixProblem()
+	task.wait(0.5)
+	teleport()
+	task.wait(0.5)
+end
+
+local timeout = 5
+local recentFixes = 0
+
+local function notRecentAnymore()
+	task.wait(5)
+	recentFixes = recentFixes - 1
+end
+
 local function fixHumanoidState()
 	if checkHumanoidState() == Enum.HumanoidStateType.Freefall then
+		recentFixes = recentFixes + 1
 		makeFloat(false)
 		task.wait(0.5)
 		makeFloat(true)
 	end
+	
+	if recentFixes > 4 then
+		fixProblem()
+	end
+	
+	task.spawn(notRecentAnymore)
 end
 
 local autoPickingUp = false
@@ -440,6 +472,7 @@ local function createGUI()
 			buttn6.BackgroundColor3 = Color3.fromRGB(50,200,200)
 			while autoChest do
 				claimChest("Giant Chest")
+				claimChest("Void Chest")
 				task.wait(60)
 			end
 		
