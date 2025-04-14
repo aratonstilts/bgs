@@ -47,7 +47,7 @@ local function findClosePickups()
 	
 	for _,pickup in pairs(pickupsFolder:GetChildren()) do
 		local part = pickup:FindFirstChildWhichIsA("MeshPart") or pickup:FindFirstChildWhichIsA("Part")
-		if part and player:DistanceFromCharacter(part.Position) < 50 and part.Position.Y - HR.Position.Y < 10 then
+		if part and player:DistanceFromCharacter(part.Position) < 65 and part.Position.Y - HR.Position.Y < 10 then
 			table.insert(nearbyPickups, part)
 		end
 	end
@@ -118,15 +118,36 @@ local function sellBubble()
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("SellBubble")
 end
 
-
-
 local function goStraightUp()
 	
 	HR.CFrame = HR.CFrame + Vector3.new(0,3000,0)
 end
 
+local autoSpin = false
+local function claimSpin()
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("ClaimFreeWheelSpin")
+end
 
+local function spinWheel()
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer("WheelSpin")
+end
 
+local spinTimeLabel = player.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("WheelSpin"):WaitForChild("Frame"):WaitForChild("Main"):WaitForChild("Buttons"):WaitForChild("Free"):WaitForChild("Button"):WaitForChild("Label")
+
+local function spinAvailable() 
+	return spinTimeLabel.Text == "FREE SPIN"
+end
+
+local autoChest = false
+local function claimChest(chestName)
+	local args = {
+    [1] = "ClaimChest",
+    [2] = chestName
+	}
+
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer(unpack(args))
+
+end
 
 local function createGUI()
 	local CmdGui = Instance.new("ScreenGui")
@@ -319,8 +340,59 @@ local function createGUI()
 		end
 	end)
 	
+	buttn5 = Instance.new("TextButton")
+    buttn5.Size = UDim2.new(0,100,0,20)
+    buttn5.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn5.BorderColor3 = Color3.new(1,1,1)
+    buttn5.ZIndex = 2
+    buttn5.Parent = CmdHandler
+    buttn5.Text = "Auto Claim and spin"
+    buttn5.TextColor3 = Color3.new(1,1,1)
+    buttn5.TextScaled = true
+    buttn5.BackgroundTransparency = 0.3
+    buttn5.MouseButton1Click:Connect(function()
+		if autoSpin == false then
+			autoSpin = true
+			buttn5.BackgroundColor3 = Color3.fromRGB(50,150,150)
+			while autoSpin do
+				if spinAvailable() then
+					claimSpin()
+					task.wait(0.2)
+					spinWheel()
+				end
+				task.wait(1)
+			end
+		
+		else
+			autoSpin = false
+			buttn5.BackgroundColor3 = Color3.fromRGB(50,50,50)
+		end
+	end)
 	
-	
+	buttn6 = Instance.new("TextButton")
+    buttn6.Size = UDim2.new(0,100,0,20)
+    buttn6.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn6.BorderColor3 = Color3.new(1,1,1)
+    buttn6.ZIndex = 2
+    buttn6.Parent = CmdHandler
+    buttn6.Text = "Auto Claim and spin"
+    buttn6.TextColor3 = Color3.new(1,1,1)
+    buttn6.TextScaled = true
+    buttn6.BackgroundTransparency = 0.3
+    buttn6.MouseButton1Click:Connect(function()
+		if autoChest == false then
+			autoChest = true
+			buttn6.BackgroundColor3 = Color3.fromRGB(50,150,150)
+			while autoChest do
+				claimChest("Giant Chest")
+				task.wait(60)
+			end
+		
+		else
+			autoChest = false
+			buttn6.BackgroundColor3 = Color3.fromRGB(50,50,50)
+		end
+	end)
 	
 end
 
