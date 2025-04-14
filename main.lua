@@ -55,23 +55,6 @@ local function findClosePickups()
 	return nearbyPickups
 end
 
-local clip = true
-local function noClip()
-	clip = false
-	while clip == false and task.wait() do
-        for _, child in pairs(character:GetDescendants()) do
-            if child:IsA("BasePart") and child.CanCollide == true and child.Name ~= floatName then
-                child.CanCollide = false
-            end
-    	end
-    end
-end
-
-local function yesClip()
-	clip = true
-end
-
-
 local function makeFloat(value)
 	if value == false then
 		BV.MaxForce = Vector3.new(0,0,0)
@@ -79,6 +62,37 @@ local function makeFloat(value)
 	end
 	
 	BV.MaxForce = Vector3.new(0,math.huge,0)
+end
+
+local worldFolder = workspace:WaitForChild("Worlds"):WaitForChild("The Overworld")
+local islandsFolder = worldFolder:WaitForChild("Islands")
+local zenIsland = islandsFolder:WaitForChild("Zen"):WaitForChild("Island")
+local board = zenIsland:WaitForChild("Board")
+local doubleGemsBoard = zenIsland:WaitForChild("Double Gems")
+local changedItems = {}
+
+local function makeIslandNoClip()
+	for i,v in pairs(zenIsland:GetDescendants()) do
+		if v:IsA("MeshPart") or v:IsA("Part") then
+			if v.Name:find("Circle") then
+				continue
+			end
+			if v.CanCollide == true then
+				v.CanCollide = false
+				table.insert(changedItems, v)
+			end
+		end
+	end
+end
+
+local function makeIslandNormal()
+	for i,v in pairs(changedItems) do
+		if v.CanCollide == false then
+			v.CanCollide = true
+		end
+	end
+	
+	changedItems = {}
 end
 
 
@@ -194,7 +208,6 @@ local function createGUI()
 		blowingBubble = false
 		sellingBubble = false
 		autoPickingUp = false
-		clip = true
 		makeFloat(false)
 		CmdGui:Destroy()
 	end)
@@ -212,10 +225,12 @@ local function createGUI()
 	Minimum.MouseButton1Click:Connect(function()
 		if Background.BackgroundTransparency == 0 then
 			Background.BackgroundTransparency = 1
+			Background.Active = false
 			CmdHandler.Visible = false
 		else
 			Background.BackgroundTransparency = 0
 			CmdHandler.Visible = true
+			Background.Active = true
 		end
 	end)
 
@@ -255,7 +270,7 @@ local function createGUI()
 		blowingBubble = not blowingBubble
 		
 		if blowingBubble == false then
-			buttn1.BackgroundColor3 = Color3.fromRGB(50,100,100)
+			buttn1.BackgroundColor3 = Color3.fromRGB(50,200,200)
 		else
 			buttn1.BackgroundColor3 = Color3.fromRGB(50,50,50)
 		end
@@ -268,7 +283,7 @@ local function createGUI()
 	
 	buttn2 = Instance.new("TextButton")
     buttn2.Size = UDim2.new(0,100,0,20)
-    buttn2.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn2.BackgroundColor3 = Color3.fromRGB(50,200,200)
     buttn2.BorderColor3 = Color3.new(1,1,1)
     buttn2.ZIndex = 2
     buttn2.Parent = CmdHandler
@@ -281,7 +296,7 @@ local function createGUI()
 		sellingBubble = not sellingBubble
 		
 		if sellingBubble == false then
-			buttn2.BackgroundColor3 = Color3.fromRGB(50,100,100)
+			buttn2.BackgroundColor3 = Color3.fromRGB(50,200,200)
 		else
 			buttn2.BackgroundColor3 = Color3.fromRGB(50,50,50)
 		end
@@ -294,7 +309,7 @@ local function createGUI()
 	
 	buttn3 = Instance.new("TextButton")
     buttn3.Size = UDim2.new(0,100,0,20)
-    buttn3.BackgroundColor3 = Color3.fromRGB(50,50,120)
+    buttn3.BackgroundColor3 = Color3.fromRGB(50,50,200)
     buttn3.BorderColor3 = Color3.new(1,1,1)
     buttn3.ZIndex = 2
     buttn3.Parent = CmdHandler
@@ -319,8 +334,8 @@ local function createGUI()
     buttn4.MouseButton1Click:Connect(function()
 		if autoPickingUp == false then
 			autoPickingUp = true
-			buttn4.BackgroundColor3 = Color3.fromRGB(50,100,100)
-			task.spawn(noClip)
+			buttn4.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			makeIslandNoClip()
 			makeFloat(true)
 			local savedYPosition = HR.CFrame.Position.Y
 			while autoPickingUp do
@@ -333,8 +348,8 @@ local function createGUI()
 			end
 		
 		else
-			yesClip()
 			makeFloat(false)
+			makeIslandNormal()
 			autoPickingUp = false
 			buttn4.BackgroundColor3 = Color3.fromRGB(50,50,50)
 		end
@@ -353,7 +368,7 @@ local function createGUI()
     buttn5.MouseButton1Click:Connect(function()
 		if autoSpin == false then
 			autoSpin = true
-			buttn5.BackgroundColor3 = Color3.fromRGB(50,150,150)
+			buttn5.BackgroundColor3 = Color3.fromRGB(50,200,200)
 			while autoSpin do
 				if spinAvailable() then
 					claimSpin()
@@ -375,14 +390,14 @@ local function createGUI()
     buttn6.BorderColor3 = Color3.new(1,1,1)
     buttn6.ZIndex = 2
     buttn6.Parent = CmdHandler
-    buttn6.Text = "Auto Claim and spin"
+    buttn6.Text = "Auto Claim Chests"
     buttn6.TextColor3 = Color3.new(1,1,1)
     buttn6.TextScaled = true
     buttn6.BackgroundTransparency = 0.3
     buttn6.MouseButton1Click:Connect(function()
 		if autoChest == false then
 			autoChest = true
-			buttn6.BackgroundColor3 = Color3.fromRGB(50,150,150)
+			buttn6.BackgroundColor3 = Color3.fromRGB(50,200,200)
 			while autoChest do
 				claimChest("Giant Chest")
 				task.wait(60)
