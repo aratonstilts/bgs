@@ -283,7 +283,7 @@ local function createGUI()
 	
 	buttn2 = Instance.new("TextButton")
     buttn2.Size = UDim2.new(0,100,0,20)
-    buttn2.BackgroundColor3 = Color3.fromRGB(50,200,200)
+    buttn2.BackgroundColor3 = Color3.fromRGB(50,500,50)
     buttn2.BorderColor3 = Color3.new(1,1,1)
     buttn2.ZIndex = 2
     buttn2.Parent = CmdHandler
