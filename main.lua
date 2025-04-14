@@ -29,6 +29,10 @@ end
 
 player.CharacterAdded:Connect(onCharacterAdded)
 
+local remoteFolder = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote")
+local functionFunction = remoteFolder:WaitForChild("Function")
+local eventEvent = remoteFolder:WaitForChild("Event")
+
 local renderedFolder = workspace:WaitForChild("Rendered")
 
 local pickupsFolder
@@ -117,7 +121,7 @@ end
 
 local function fixHumanoidState()
 	if checkHumanoidState() == Enum.HumanoidStateType.Freefall then
-		Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+		humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	end
 end
 
@@ -132,14 +136,25 @@ local function autoPickupPickupables()
 	end
 end
 
+local autoPlaytime = false
+local function claimPlaytimeRewards()
+	for i = 1,9 do
+		local args = {
+			[1] = "ClaimPlaytime",
+			[2] = i
+		}
+		functionFunction:InvokeServer(unpack(args))
+	end
+end
+
 local blowingBubble = false
 local function blowBubble()
-	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("BlowBubble")
+	eventEvent:FireServer("BlowBubble")
 end
 
 local sellingBubble = false
 local function sellBubble()
-	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("SellBubble")
+	eventEvent:FireServer("SellBubble")
 end
 
 local function goStraightUp()
@@ -149,11 +164,11 @@ end
 
 local autoSpin = false
 local function claimSpin()
-	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("ClaimFreeWheelSpin")
+	eventEvent:FireServer("ClaimFreeWheelSpin")
 end
 
 local function spinWheel()
-	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer("WheelSpin")
+	functionFunction:InvokeServer("WheelSpin")
 end
 
 local spinTimeLabel = player.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("WheelSpin"):WaitForChild("Frame"):WaitForChild("Main"):WaitForChild("Buttons"):WaitForChild("Free"):WaitForChild("Button"):WaitForChild("Label")
@@ -169,7 +184,7 @@ local function claimChest(chestName)
     [2] = chestName
 	}
 
-	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer(unpack(args))
+	eventEvent:FireServer(unpack(args))
 
 end
 
@@ -218,6 +233,8 @@ local function createGUI()
 		blowingBubble = false
 		sellingBubble = false
 		autoPickingUp = false
+		autoChest = false
+		autoPlaytime = false
 		makeFloat(false)
 		CmdGui:Destroy()
 	end)
@@ -258,8 +275,17 @@ local function createGUI()
 	CmdName.TextWrapped = true
 	Dragg = false
 
-	CmdName.MouseButton1Down:Connect(function()Dragg = true while Dragg do game.TweenService:Create(Background, TweenInfo.new(.06), {Position = UDim2.new(0,mouse.X-40,0,mouse.Y-5)}):Play()wait()end end)
-	CmdName.MouseButton1Up:Connect(function()Dragg = false end)
+	CmdName.MouseButton1Down:Connect(function()
+		Dragg = true 
+		while Dragg do 
+			game.TweenService:Create(Background, TweenInfo.new(.06), {Position = UDim2.new(0,mouse.X-40,0,mouse.Y-5)}):Play()
+			wait()
+		end 
+	end)
+	
+	CmdName.MouseButton1Up:Connect(function()
+		Dragg = false 
+	end)
 
 	local listLayout = Instance.new("UIListLayout")
 	listLayout.Padding = UDim.new(0,2)
@@ -417,6 +443,31 @@ local function createGUI()
 		
 		else
 			autoChest = false
+			buttn6.BackgroundColor3 = Color3.fromRGB(50,50,50)
+		end
+	end)
+	
+	buttn6 = Instance.new("TextButton")
+    buttn6.Size = UDim2.new(0,100,0,20)
+    buttn6.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn6.BorderColor3 = Color3.new(1,1,1)
+    buttn6.ZIndex = 2
+    buttn6.Parent = CmdHandler
+    buttn6.Text = "Auto Claim Playtime"
+    buttn6.TextColor3 = Color3.new(1,1,1)
+    buttn6.TextScaled = true
+    buttn6.BackgroundTransparency = 0.3
+    buttn6.MouseButton1Click:Connect(function()
+		if autoPlaytime == false then
+			autoPlaytime = true
+			buttn6.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			while autoPlaytime do
+				claimPlaytimeRewards()
+				task.wait(60)
+			end
+		
+		else
+			autoPlaytime = false
 			buttn6.BackgroundColor3 = Color3.fromRGB(50,50,50)
 		end
 	end)
