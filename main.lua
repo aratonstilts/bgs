@@ -121,7 +121,9 @@ end
 
 local function fixHumanoidState()
 	if checkHumanoidState() == Enum.HumanoidStateType.Freefall then
-		humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+		makeFloat(false)
+		task.wait(0.5)
+		makeFloat(true)
 	end
 end
 
@@ -447,20 +449,20 @@ local function createGUI()
 		end
 	end)
 	
-	buttn6 = Instance.new("TextButton")
-    buttn6.Size = UDim2.new(0,100,0,20)
-    buttn6.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    buttn6.BorderColor3 = Color3.new(1,1,1)
-    buttn6.ZIndex = 2
-    buttn6.Parent = CmdHandler
-    buttn6.Text = "Auto Claim Playtime"
-    buttn6.TextColor3 = Color3.new(1,1,1)
-    buttn6.TextScaled = true
-    buttn6.BackgroundTransparency = 0.3
-    buttn6.MouseButton1Click:Connect(function()
+	buttn7 = Instance.new("TextButton")
+    buttn7.Size = UDim2.new(0,100,0,20)
+    buttn7.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn7.BorderColor3 = Color3.new(1,1,1)
+    buttn7.ZIndex = 2
+    buttn7.Parent = CmdHandler
+    buttn7.Text = "Auto Claim Playtime"
+    buttn7.TextColor3 = Color3.new(1,1,1)
+    buttn7.TextScaled = true
+    buttn7.BackgroundTransparency = 0.3
+    buttn7.MouseButton1Click:Connect(function()
 		if autoPlaytime == false then
 			autoPlaytime = true
-			buttn6.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			buttn7.BackgroundColor3 = Color3.fromRGB(50,200,200)
 			while autoPlaytime do
 				claimPlaytimeRewards()
 				task.wait(60)
@@ -468,7 +470,7 @@ local function createGUI()
 		
 		else
 			autoPlaytime = false
-			buttn6.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			buttn7.BackgroundColor3 = Color3.fromRGB(50,50,50)
 		end
 	end)
 	
