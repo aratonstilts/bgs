@@ -269,7 +269,7 @@ local function createGUI()
 		
 		blowingBubble = not blowingBubble
 		
-		if blowingBubble == false then
+		if blowingBubble == true then
 			buttn1.BackgroundColor3 = Color3.fromRGB(50,200,200)
 		else
 			buttn1.BackgroundColor3 = Color3.fromRGB(50,50,50)
@@ -295,7 +295,7 @@ local function createGUI()
 		
 		sellingBubble = not sellingBubble
 		
-		if sellingBubble == false then
+		if sellingBubble == true then
 			buttn2.BackgroundColor3 = Color3.fromRGB(50,200,200)
 		else
 			buttn2.BackgroundColor3 = Color3.fromRGB(50,50,50)
