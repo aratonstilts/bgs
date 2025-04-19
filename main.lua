@@ -140,7 +140,7 @@ local timeout = 5
 local recentFixes = 0
 
 local function notRecentAnymore()
-	task.wait(5)
+	task.wait(20)
 	recentFixes = recentFixes - 1
 end
 
