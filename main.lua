@@ -2,6 +2,10 @@ if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
 
+if game.CoreGui:FindFirstChild("IGUI") then
+	game.CoreGui.IGUI:Destroy()
+end
+
 local mouse = game.Players.LocalPlayer:GetMouse()
 repeat 
 	wait(0.5) 
@@ -28,6 +32,8 @@ if character then
 end
 
 player.CharacterAdded:Connect(onCharacterAdded)
+
+local TS = game:GetService("TweenService")
 
 local remoteFolder = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote")
 local functionFunction = remoteFolder:WaitForChild("Function")
@@ -201,10 +207,6 @@ local function claimSpin()
 	eventEvent:FireServer("ClaimFreeWheelSpin")
 end
 
-local function spinWheel()
-	functionFunction:InvokeServer("WheelSpin")
-end
-
 local spinTimeLabel = player.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("WheelSpin"):WaitForChild("Frame"):WaitForChild("Main"):WaitForChild("Buttons"):WaitForChild("Free"):WaitForChild("Button"):WaitForChild("Label")
 
 local function spinAvailable() 
@@ -214,12 +216,104 @@ end
 local autoChest = false
 local function claimChest(chestName)
 	local args = {
-    [1] = "ClaimChest",
-    [2] = chestName
+		[1] = "ClaimChest",
+		[2] = chestName,
+		[3] = true
 	}
 
 	eventEvent:FireServer(unpack(args))
 
+end
+
+local rifts = renderedFolder:WaitForChild("Rifts")
+
+local function goToRift(rift)
+
+	local riftCFrame = rift:GetPivot()
+	
+	makeFloat(true)
+
+	HR.CFrame = HR.CFrame + Vector3.new(0, riftCFrame.Position.Y - HR.CFrame.Position.Y + 10 ,0)
+
+	local goal = {}
+	goal.CFrame = riftCFrame + Vector3.new(0,10,0)
+	
+	local Distance = (HR.Position - riftCFrame.Position).Magnitude
+	local Speed = 20
+	local Time = Distance/Speed
+
+	local tween = TS:Create(HR, TweenInfo.new(Time, Enum.EasingStyle.Linear), goal)
+	tween:Play()
+	tween.Completed:Wait()
+
+	makeFloat(false)
+
+end
+
+local openingRiftChest = false
+
+local function openRiftChest(chestName)
+
+	local args = {
+		[1] = "UnlockRiftChest",
+		[2] = chestName,
+		[3] = false
+	}
+
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer(unpack(args))
+
+end
+
+riftBackgroundActive = false
+
+local function addRiftButton(background, rift)
+	local buttn = Instance.new("TextButton")
+    buttn.Size = UDim2.new(0,100,0,20)
+    buttn.BackgroundColor3 = Color3.fromRGB(50,50,200)
+    buttn.BorderColor3 = Color3.new(1,1,1)
+    buttn.ZIndex = 2
+    buttn.Parent = background
+    buttn.Text = rift.Name
+    buttn.TextColor3 = Color3.new(1,1,1)
+    buttn.TextScaled = true
+    buttn.BackgroundTransparency = 0.3
+    buttn.MouseButton1Click:Connect(function()
+		goToRift(rift)
+	end)
+end
+
+local function createRiftBackground(mainBackground)
+
+	local background = Instance.new("Frame")
+	
+	background.Name = "riftsBackground"
+	background.Parent = mainBackground
+	background.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	background.BorderSizePixel = 0
+	background.BorderColor3 = Color3.new(1,0,1)
+	background.Position = UDim2.new(1, 0, 0, 0)
+	background.Size = UDim2.new(1, 0, 1, 0)
+	background.Active = true
+	
+	local scrFrame = Instance.new("ScrollingFrame")
+	scrFrame.Name = "scrFrame"
+	scrFrame.Parent = background
+	scrFrame.Active = true
+	scrFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+	scrFrame.BackgroundTransparency = 1.000
+	scrFrame.BorderSizePixel = 0
+	scrFrame.AutomaticCanvasSize = "Y"
+	scrFrame.Position = UDim2.new(0, 5, 0, 19)
+	scrFrame.Size = UDim2.new(0, 113, 0, 250)
+	scrFrame.ScrollBarThickness = 4
+	
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.Padding = UDim.new(0,2)
+	listLayout.Parent = scrFrame
+	
+	for _,rift in pairs(rifts:GetChildren()) do
+		addRiftButton(scrFrame, rift)
+	end
 end
 
 local function createGUI()
@@ -270,6 +364,8 @@ local function createGUI()
 		autoChest = false
 		autoPlaytime = false
 		makeFloat(false)
+		riftBackgroundActive = false
+		openingRiftChest = false
 		CmdGui:Destroy()
 	end)
 	
@@ -312,7 +408,7 @@ local function createGUI()
 	CmdName.MouseButton1Down:Connect(function()
 		Dragg = true 
 		while Dragg do 
-			game.TweenService:Create(Background, TweenInfo.new(.06), {Position = UDim2.new(0,mouse.X-40,0,mouse.Y-5)}):Play()
+			TS:Create(Background, TweenInfo.new(.06), {Position = UDim2.new(0,mouse.X-40,0,mouse.Y-5)}):Play()
 			wait()
 		end 
 	end)
@@ -361,6 +457,9 @@ local function createGUI()
     buttn2.TextColor3 = Color3.new(1,1,1)
     buttn2.TextScaled = true
     buttn2.BackgroundTransparency = 0.3
+	
+	buttn2.Visible = false
+	
     buttn2.MouseButton1Click:Connect(function()
 		
 		sellingBubble = not sellingBubble
@@ -433,7 +532,7 @@ local function createGUI()
     buttn5.BorderColor3 = Color3.new(1,1,1)
     buttn5.ZIndex = 2
     buttn5.Parent = CmdHandler
-    buttn5.Text = "Auto Claim and spin"
+    buttn5.Text = "Auto Claim spin ticket"
     buttn5.TextColor3 = Color3.new(1,1,1)
     buttn5.TextScaled = true
     buttn5.BackgroundTransparency = 0.3
@@ -444,8 +543,6 @@ local function createGUI()
 			while autoSpin do
 				if spinAvailable() then
 					claimSpin()
-					task.wait(0.2)
-					spinWheel()
 				end
 				task.wait(1)
 			end
@@ -504,6 +601,61 @@ local function createGUI()
 		else
 			autoPlaytime = false
 			buttn7.BackgroundColor3 = Color3.fromRGB(50,50,50)
+		end
+	end)
+	
+	buttn8 = Instance.new("TextButton")
+    buttn8.Size = UDim2.new(0,100,0,20)
+    buttn8.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn8.BorderColor3 = Color3.new(1,1,1)
+    buttn8.ZIndex = 2
+    buttn8.Parent = CmdHandler
+    buttn8.Text = "Show all Rifts"
+    buttn8.TextColor3 = Color3.new(1,1,1)
+    buttn8.TextScaled = true
+    buttn8.BackgroundTransparency = 0.3
+    buttn8.MouseButton1Click:Connect(function()
+		if riftBackgroundActive == false then
+			riftBackgroundActive = true
+			buttn8.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			buttn8.Text = "Hide all Rifts"
+			createRiftBackground(Background)
+		
+		else
+			riftBackgroundActive = false
+			buttn8.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			buttn8.Text = "Show all Rifts"
+			if Background:FindFirstChild("riftsBackground") then 
+				Background.riftsBackground:Destroy() 
+			end
+		end
+	end)
+	
+	buttn9 = Instance.new("TextButton")
+    buttn9.Size = UDim2.new(0,100,0,20)
+    buttn9.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn9.BorderColor3 = Color3.new(1,1,1)
+    buttn9.ZIndex = 2
+    buttn9.Parent = CmdHandler
+    buttn9.Text = "Auto open gold chest"
+    buttn9.TextColor3 = Color3.new(1,1,1)
+    buttn9.TextScaled = true
+    buttn9.BackgroundTransparency = 0.3
+    buttn9.MouseButton1Click:Connect(function()
+		if openingRiftChest == false then
+			openingRiftChest = true
+			buttn9.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			buttn9.Text = "Auto open gold chest"
+			
+			while openingRiftChest == true do
+				openRiftChest("golden-chest")
+				task.wait()
+			end
+		
+		else
+			openingRiftChest = false
+			buttn9.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			buttn9.Text = "Auto open gold chest"
 		end
 	end)
 	
