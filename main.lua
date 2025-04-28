@@ -222,7 +222,6 @@ local function claimChest(chestName)
 	}
 
 	eventEvent:FireServer(unpack(args))
-
 end
 
 local rifts = renderedFolder:WaitForChild("Rifts")
@@ -569,6 +568,7 @@ local function createGUI()
 			buttn6.BackgroundColor3 = Color3.fromRGB(50,200,200)
 			while autoChest do
 				claimChest("Giant Chest")
+				task.wait(1)
 				claimChest("Void Chest")
 				task.wait(60)
 			end
