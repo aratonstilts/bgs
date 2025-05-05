@@ -271,7 +271,7 @@ local currentAreas = {
 
 local function addTeleportButton(background, area, subArea)
 	local buttn = Instance.new("TextButton")
-    buttn.Size = UDim2.new(0,100,0,20)
+    buttn.Size = UDim2.new(1,0,0,20)
     buttn.BackgroundColor3 = Color3.fromRGB(50,50,200)
     buttn.BorderColor3 = Color3.new(1,1,1)
     buttn.ZIndex = 2
@@ -307,7 +307,7 @@ local function createTeleportBackground(mainBackground)
 	scrFrame.BorderSizePixel = 0
 	scrFrame.AutomaticCanvasSize = "Y"
 	scrFrame.Position = UDim2.new(0, 5, 0, 19)
-	scrFrame.Size = UDim2.new(0, 113, 0, 250)
+	scrFrame.Size = UDim2.new(1, -5, 1, -5)
 	scrFrame.ScrollBarThickness = 4
 	
 	local listLayout = Instance.new("UIListLayout")
