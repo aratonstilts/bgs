@@ -49,9 +49,11 @@ local function findPickupsFolder()
 		
 			local folderContents = folder:GetChildren()
 			
+			if #folderContents == 0 then continue end
+			
 			local meshpart = folderContents[1]:FindFirstChildWhichIsA("MeshPart")
 			
-			if #folderContents > 0 and meshpart and meshpart.Name:find("Meshes:) then
+			if meshpart and meshpart.Name:find("Meshes") then
 				pickupsFolder = folder
 			end
 			
@@ -234,6 +236,76 @@ local function claimChest(chestName)
 	eventEvent:FireServer(unpack(args))
 end
 
+local function teleport(area, subArea)
+
+	if subArea == "Spawn" then
+		eventEvent:FireServer("Teleport", "Workspace.Worlds."..area..".FastTravel."..subArea)
+		return
+	end
+	
+	eventEvent:FireServer("Teleport", "Workspace.Worlds."..area..".Islands."..subArea..".Island.Portal.Spawn")
+	
+end
+
+teleportBackgroundActive = false
+
+local currentAreas = {
+	["The Overworld"] = {"Spawn", "Floating Island", "Outer Space", "Twilight", "Zen", "The Void"},
+	["Minigame Paradise"] = {"Spawn", "Robot Factory", "Minecart Forest", "Dice Island"}
+}
+
+local function addTeleportButton(background, area, subArea)
+	local buttn = Instance.new("TextButton")
+    buttn.Size = UDim2.new(0,100,0,20)
+    buttn.BackgroundColor3 = Color3.fromRGB(50,50,200)
+    buttn.BorderColor3 = Color3.new(1,1,1)
+    buttn.ZIndex = 2
+    buttn.Parent = background
+    buttn.Text = area.." - "..subArea
+    buttn.TextColor3 = Color3.new(1,1,1)
+    buttn.TextScaled = true
+    buttn.BackgroundTransparency = 0.3
+    buttn.MouseButton1Click:Connect(function()
+		teleport(area, subArea)
+	end)
+end
+
+local function createTeleportBackground(mainBackground)
+
+	local background = Instance.new("Frame")
+	
+	background.Name = "teleportBackground"
+	background.Parent = mainBackground
+	background.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	background.BorderSizePixel = 0
+	background.BorderColor3 = Color3.new(1,0,1)
+	background.Position = UDim2.new(1, 0, 0, 0)
+	background.Size = UDim2.new(2, 0, 1, 0)
+	background.Active = true
+	
+	local scrFrame = Instance.new("ScrollingFrame")
+	scrFrame.Name = "scrFrame"
+	scrFrame.Parent = background
+	scrFrame.Active = true
+	scrFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+	scrFrame.BackgroundTransparency = 1.000
+	scrFrame.BorderSizePixel = 0
+	scrFrame.AutomaticCanvasSize = "Y"
+	scrFrame.Position = UDim2.new(0, 5, 0, 19)
+	scrFrame.Size = UDim2.new(0, 113, 0, 250)
+	scrFrame.ScrollBarThickness = 4
+	
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.Padding = UDim.new(0,2)
+	listLayout.Parent = scrFrame
+	
+	for area,subAreas in pairs(currentAreas) do
+		for i = 1, #subAreas do
+			addTeleportButton(scrFrame, area, subAreas[i])
+		end
+	end
+end
+
 local rifts = renderedFolder:WaitForChild("Rifts")
 
 local function goToRift(rift)
@@ -374,6 +446,7 @@ local function createGUI()
 		autoPlaytime = false
 		makeFloat(false)
 		riftBackgroundActive = false
+		teleportBackgroundActive = false
 		openingRiftChest = false
 		CmdGui:Destroy()
 	end)
@@ -647,15 +720,44 @@ local function createGUI()
     buttn9.BorderColor3 = Color3.new(1,1,1)
     buttn9.ZIndex = 2
     buttn9.Parent = CmdHandler
-    buttn9.Text = "Auto open gold chest"
+    buttn9.Text = "Teleports>"
     buttn9.TextColor3 = Color3.new(1,1,1)
     buttn9.TextScaled = true
     buttn9.BackgroundTransparency = 0.3
     buttn9.MouseButton1Click:Connect(function()
+		if teleportBackgroundActive == false then
+			teleportBackgroundActive = true
+			buttn9.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			buttn9.Text = "Teleports<"
+			createTeleportBackground(Background)
+		
+		else
+			teleportBackgroundActive = false
+			buttn9.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			buttn9.Text = "Teleports>"
+			if Background:FindFirstChild("teleportBackground") then 
+				Background.teleportBackground:Destroy() 
+			end
+		end
+	end)
+	
+	
+	
+	buttn10 = Instance.new("TextButton")
+    buttn10.Size = UDim2.new(0,100,0,20)
+    buttn10.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn10.BorderColor3 = Color3.new(1,1,1)
+    buttn10.ZIndex = 2
+    buttn10.Parent = CmdHandler
+    buttn10.Text = "Auto open gold chest"
+    buttn10.TextColor3 = Color3.new(1,1,1)
+    buttn10.TextScaled = true
+    buttn10.BackgroundTransparency = 0.3
+    buttn10.MouseButton1Click:Connect(function()
 		if openingRiftChest == false then
 			openingRiftChest = true
-			buttn9.BackgroundColor3 = Color3.fromRGB(50,200,200)
-			buttn9.Text = "Auto open gold chest"
+			buttn10.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			buttn10.Text = "Auto open gold chest"
 			
 			while openingRiftChest == true do
 				openRiftChest("golden-chest")
@@ -664,8 +766,8 @@ local function createGUI()
 		
 		else
 			openingRiftChest = false
-			buttn9.BackgroundColor3 = Color3.fromRGB(50,50,50)
-			buttn9.Text = "Auto open gold chest"
+			buttn10.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			buttn10.Text = "Auto open gold chest"
 		end
 	end)
 	
