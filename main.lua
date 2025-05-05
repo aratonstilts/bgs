@@ -44,8 +44,17 @@ local renderedFolder = workspace:WaitForChild("Rendered")
 local pickupsFolder
 local function findPickupsFolder()
 	for _, folder in pairs(renderedFolder:GetChildren()) do
-		if folder.Name == "Chunker" and #folder:GetChildren() > 0 and folder:GetChildren()[1]:FindFirstChildWhichIsA("MeshPart").Name:find("Meshes") then
-			pickupsFolder = folder
+	
+		if folder.Name == "Chunker" then
+		
+			local folderContents = folder:GetChildren()
+			
+			local meshpart = folderContents[1]:FindFirstChildWhichIsA("MeshPart")
+			
+			if #folderContents > 0 and meshpart and meshpart.Name:find("Meshes:) then
+				pickupsFolder = folder
+			end
+			
 		end
 	end
 end
@@ -57,6 +66,7 @@ local function findClosePickups()
 	
 	for _,pickup in pairs(pickupsFolder:GetChildren()) do
 		local part = pickup:FindFirstChildWhichIsA("MeshPart") or pickup:FindFirstChildWhichIsA("Part")
+		
 		if part and player:DistanceFromCharacter(part.Position) < 65 and part.Position.Y - HR.Position.Y < 10 then
 			table.insert(nearbyPickups, part)
 		end
