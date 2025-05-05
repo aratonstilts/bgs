@@ -226,6 +226,21 @@ local function spinAvailable()
 end
 
 local autoChest = false
+local chestsFolder = renderedFolder:WaitForChild("Chests")
+
+local function getCurrentChests()
+	local currentChests = chestsFolder:GetChildren()
+	
+	local chestNames = {}
+	
+	for _,chest in pairs(currentChests) do
+		table.insert(chestNames, chest.Name)
+	end
+	
+	return chestNames
+		
+end
+
 local function claimChest(chestName)
 	local args = {
 		[1] = "ClaimChest",
@@ -304,6 +319,18 @@ local function createTeleportBackground(mainBackground)
 			addTeleportButton(scrFrame, area, subAreas[i])
 		end
 	end
+end
+
+local codes = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Data"):WaitForChild("Codes"))
+
+local function redeemCodes()
+
+	for code,tab in pairs(codes) do
+
+		functionFunction:InvokeServer("RedeemCode", code)
+
+	end
+	
 end
 
 local rifts = renderedFolder:WaitForChild("Rifts")
@@ -649,10 +676,14 @@ local function createGUI()
 		if autoChest == false then
 			autoChest = true
 			buttn6.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			
+			local chestNames = getCurrentChests()
+			
 			while autoChest do
-				claimChest("Giant Chest")
-				task.wait(1)
-				claimChest("Void Chest")
+				for _, chestName in pairs(chestNames) do
+					claimChest(chestName)
+					task.wait(1)
+				end
 				task.wait(60)
 			end
 		
@@ -769,6 +800,20 @@ local function createGUI()
 			buttn10.BackgroundColor3 = Color3.fromRGB(50,50,50)
 			buttn10.Text = "Auto open gold chest"
 		end
+	end)
+	
+	buttn11 = Instance.new("TextButton")
+    buttn11.Size = UDim2.new(0,100,0,20)
+    buttn11.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn11.BorderColor3 = Color3.new(1,1,1)
+    buttn11.ZIndex = 2
+    buttn11.Parent = CmdHandler
+    buttn11.Text = "Redeem Codes"
+    buttn11.TextColor3 = Color3.new(1,1,1)
+    buttn11.TextScaled = true
+    buttn11.BackgroundTransparency = 0.3
+    buttn11.MouseButton1Click:Connect(function()
+		redeemCodes()
 	end)
 	
 end
