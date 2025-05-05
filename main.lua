@@ -44,7 +44,7 @@ local renderedFolder = workspace:WaitForChild("Rendered")
 local pickupsFolder
 local function findPickupsFolder()
 	for _, folder in pairs(renderedFolder:GetChildren()) do
-		if folder.Name == "Chunker" and folder:GetChildren()[1]:FindFirstChildWhichIsA("MeshPart").Name:find("Meshes") then
+		if folder.Name == "Chunker" and #folder:GetChildren() > 0 and folder:GetChildren()[1]:FindFirstChildWhichIsA("MeshPart").Name:find("Meshes") then
 			pickupsFolder = folder
 		end
 	end
