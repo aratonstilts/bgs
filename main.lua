@@ -333,6 +333,16 @@ local function redeemCodes()
 	
 end
 
+
+local function finishMinigame()
+	eventEvent:FireServer("FinishMinigame")
+end
+
+local function startMinigame(minigame, difficulty)
+	eventEvent:FireServer("StartMinigame", minigame, difficulty)
+end
+
+
 local rifts = renderedFolder:WaitForChild("Rifts")
 
 local function goToRift(rift)
@@ -814,6 +824,38 @@ local function createGUI()
     buttn11.BackgroundTransparency = 0.3
     buttn11.MouseButton1Click:Connect(function()
 		redeemCodes()
+	end)
+	
+	buttn12 = Instance.new("TextButton")
+    buttn12.Size = UDim2.new(0,100,0,20)
+    buttn12.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn12.BorderColor3 = Color3.new(1,1,1)
+    buttn12.ZIndex = 2
+    buttn12.Parent = CmdHandler
+    buttn12.Text = "Play and win cart escape"
+    buttn12.TextColor3 = Color3.new(1,1,1)
+    buttn12.TextScaled = true
+    buttn12.BackgroundTransparency = 0.3
+    buttn12.MouseButton1Click:Connect(function()
+		startMinigame("Cart Escape", "Insane")
+		task.wait(20)
+		finishMinigame()
+	end)
+	
+	buttn13 = Instance.new("TextButton")
+    buttn13.Size = UDim2.new(0,100,0,20)
+    buttn13.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    buttn13.BorderColor3 = Color3.new(1,1,1)
+    buttn13.ZIndex = 2
+    buttn13.Parent = CmdHandler
+    buttn13.Text = "Play and win pet match"
+    buttn13.TextColor3 = Color3.new(1,1,1)
+    buttn13.TextScaled = true
+    buttn13.BackgroundTransparency = 0.3
+    buttn13.MouseButton1Click:Connect(function()
+		startMinigame("Pet Match", "Insane")
+		task.wait(20)
+		finishMinigame()
 	end)
 	
 end
