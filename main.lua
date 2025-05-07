@@ -826,20 +826,46 @@ local function createGUI()
 		redeemCodes()
 	end)
 	
+	local autoMinecart = false
+	local autoPetMatch = false
+	local playingMinigame = false
+	
 	buttn12 = Instance.new("TextButton")
     buttn12.Size = UDim2.new(0,100,0,20)
     buttn12.BackgroundColor3 = Color3.fromRGB(50,50,50)
     buttn12.BorderColor3 = Color3.new(1,1,1)
     buttn12.ZIndex = 2
     buttn12.Parent = CmdHandler
-    buttn12.Text = "Play and win cart escape"
+    buttn12.Text = "Autoplay cart escape"
     buttn12.TextColor3 = Color3.new(1,1,1)
     buttn12.TextScaled = true
     buttn12.BackgroundTransparency = 0.3
     buttn12.MouseButton1Click:Connect(function()
-		startMinigame("Cart Escape", "Insane")
-		task.wait(23)
-		finishMinigame()
+		if autoMinecart == false then
+			autoMinecart = true
+			buttn12.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			buttn12.Text = "autoplaying cart escape"
+			
+			while autoMinecart == true do
+			
+				repeat task.wait(1) until playingMinigame == false
+				
+				playingMinigame = true
+				startMinigame("Cart Escape", "Insane")
+				task.wait(23)
+				finishMinigame()
+				task.wait(6)
+				playingMinigame = false
+				
+				task.wait(60)
+			end
+		
+		else
+			autoMinecart = false
+			buttn12.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			buttn12.Text = "Autoplay cart escape"
+		end
+		
 	end)
 	
 	buttn13 = Instance.new("TextButton")
@@ -848,16 +874,36 @@ local function createGUI()
     buttn13.BorderColor3 = Color3.new(1,1,1)
     buttn13.ZIndex = 2
     buttn13.Parent = CmdHandler
-    buttn13.Text = "Play and win pet match"
+    buttn13.Text = "Autoplay pet match"
     buttn13.TextColor3 = Color3.new(1,1,1)
     buttn13.TextScaled = true
     buttn13.BackgroundTransparency = 0.3
     buttn13.MouseButton1Click:Connect(function()
-		startMinigame("Pet Match", "Insane")
-		task.wait(5)
-		finishMinigame()
+		if autoPetMatch == false then
+			autoPetMatch = true
+			buttn13.BackgroundColor3 = Color3.fromRGB(50,200,200)
+			buttn13.Text = "autoplaying pet match"
+			
+			while autoPetMatch == true do
+			
+				repeat task.wait(1) until playingMinigame == false
+					
+				playingMinigame = true
+				startMinigame("Pet Match", "Insane")
+				task.wait(7)
+				finishMinigame()
+				task.wait(6)
+				playingMinigame = false
+				
+				task.wait(60)
+			end
+		
+		else
+			autoPetMatch = false
+			buttn13.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			buttn13.Text = "Autoplay pet match"
+		end
 	end)
-	
 end
 
 createGUI()
