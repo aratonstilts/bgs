@@ -838,7 +838,7 @@ local function createGUI()
     buttn12.BackgroundTransparency = 0.3
     buttn12.MouseButton1Click:Connect(function()
 		startMinigame("Cart Escape", "Insane")
-		task.wait(20)
+		task.wait(23)
 		finishMinigame()
 	end)
 	
