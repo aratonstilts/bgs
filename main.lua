@@ -854,7 +854,7 @@ local function createGUI()
     buttn13.BackgroundTransparency = 0.3
     buttn13.MouseButton1Click:Connect(function()
 		startMinigame("Pet Match", "Insane")
-		task.wait(20)
+		task.wait(5)
 		finishMinigame()
 	end)
 	
