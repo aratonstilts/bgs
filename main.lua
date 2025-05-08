@@ -890,7 +890,7 @@ local function createGUI()
 					
 				playingMinigame = true
 				startMinigame("Pet Match", "Insane")
-				task.wait(7)
+				task.wait(10)
 				finishMinigame()
 				task.wait(6)
 				playingMinigame = false
