@@ -43,6 +43,9 @@ local renderedFolder = workspace:WaitForChild("Rendered")
 
 local pickupsFolder
 local function findPickupsFolder()
+
+	if pickupsFolder then return pickupsFolder end
+
 	for _, folder in pairs(renderedFolder:GetChildren()) do
 	
 		if folder.Name == "Chunker" then
@@ -61,9 +64,10 @@ local function findPickupsFolder()
 	end
 end
 
-findPickupsFolder()
+
 
 local function findClosePickups()
+	pickupsFolder = findPickupsFolder()
 	local nearbyPickups = {}
 	
 	for _,pickup in pairs(pickupsFolder:GetChildren()) do
@@ -76,6 +80,27 @@ local function findClosePickups()
 	
 	return nearbyPickups
 end
+
+local playerGUI = game:GetService("Players").LocalPlayer.PlayerGui
+local screenGUI = playerGUI:WaitForChild("ScreenGui")
+local notifications = screenGUI:WaitForChild("Notifications")
+
+local petMatchReady = false
+local cartEscapeReady = false
+
+local notificationChecker = notifications.ChildAdded:Connect(function(screenAdded)
+	local content = screenAdded:WaitForChild("Content")
+	local label = content:WaitForChild("Label")
+	
+	if string.lower(label.Text):find("pet match") then
+		petMatchReady = true
+	end
+	
+	if string.lower(label.Text):find("cart escape") then
+		cartEscapeReady = true
+	end
+	
+end)
 
 local function makeFloat(value)
 	if value == false then
@@ -219,7 +244,7 @@ local function claimSpin()
 	eventEvent:FireServer("ClaimFreeWheelSpin")
 end
 
-local spinTimeLabel = player.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("WheelSpin"):WaitForChild("Frame"):WaitForChild("Main"):WaitForChild("Buttons"):WaitForChild("Free"):WaitForChild("Button"):WaitForChild("Label")
+local spinTimeLabel = screenGUI:WaitForChild("WheelSpin"):WaitForChild("Frame"):WaitForChild("Main"):WaitForChild("Buttons"):WaitForChild("Free"):WaitForChild("Button"):WaitForChild("Label")
 
 local function spinAvailable() 
 	return spinTimeLabel.Text == "FREE SPIN"
@@ -485,6 +510,7 @@ local function createGUI()
 		riftBackgroundActive = false
 		teleportBackgroundActive = false
 		openingRiftChest = false
+		notificationChecker:Disconnect()
 		CmdGui:Destroy()
 	end)
 	
@@ -829,6 +855,8 @@ local function createGUI()
 	local autoMinecart = false
 	local autoPetMatch = false
 	local playingMinigame = false
+	petMatchReady = false
+	cartEscapeReady = false
 	
 	buttn12 = Instance.new("TextButton")
     buttn12.Size = UDim2.new(0,100,0,20)
@@ -845,19 +873,20 @@ local function createGUI()
 			autoMinecart = true
 			buttn12.BackgroundColor3 = Color3.fromRGB(50,200,200)
 			buttn12.Text = "autoplaying cart escape"
-			
+			cartEscapeReady = true
 			while autoMinecart == true do
 			
-				repeat task.wait(1) until playingMinigame == false
+				repeat task.wait() until playingMinigame == false and cartEscapeReady == true
 				
+				if autoMinecart == false then return end
+				
+				cartEscapeReady = false
 				playingMinigame = true
 				startMinigame("Cart Escape", "Insane")
 				task.wait(23)
 				finishMinigame()
 				task.wait(6)
 				playingMinigame = false
-				
-				task.wait(60)
 			end
 		
 		else
@@ -883,19 +912,21 @@ local function createGUI()
 			autoPetMatch = true
 			buttn13.BackgroundColor3 = Color3.fromRGB(50,200,200)
 			buttn13.Text = "autoplaying pet match"
+			petMatchReady = true
 			
 			while autoPetMatch == true do
 			
-				repeat task.wait(1) until playingMinigame == false
+				repeat task.wait() until playingMinigame == false and petMatchReady == true
 					
+				if autoPetMatch == false then return end
+				
 				playingMinigame = true
+				petMatchReady = false
 				startMinigame("Pet Match", "Insane")
-				task.wait(10)
+				task.wait(7)
 				finishMinigame()
 				task.wait(6)
 				playingMinigame = false
-				
-				task.wait(60)
 			end
 		
 		else
